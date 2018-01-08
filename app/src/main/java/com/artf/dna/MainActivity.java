@@ -1,11 +1,14 @@
 package com.artf.dna;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+
+import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,11 +21,11 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements StringAdapter.OnListItemClickListener{
 
     @BindView(R.id.recyclerView) RecyclerView recyclerView;
     String rna;
-
+    StringAdapter postsAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,25 +38,22 @@ public class MainActivity extends AppCompatActivity {
         rna = swapCharacters(dnaString);
         String rnaString = rnaBuilder();
 
-        List<String> rnaList = new ArrayList<>();
-        List<String> rnaResultList = new ArrayList<>();
+        List<RnaObject> rnaList = new ArrayList<>();
 
-        rnaList.add("auggcu");
-        rnaList.add("auggcc");
-        rnaList.add("auggca");
-        rnaList.add("auggcg");
+        rnaList.add(new RnaObject("auggcu"));
+        rnaList.add(new RnaObject("auggcc"));
+        rnaList.add(new RnaObject("auggca"));
+        rnaList.add(new RnaObject("auggcg"));
 
-        for(String rnaResult : rnaList) {
-            int x = count(rnaString, rnaResult);
-            String result = rnaResult + " :" + String.valueOf(x);
-            rnaResultList.add(result);
+        for(RnaObject rnaResult : rnaList) {
+            count(rnaString, rnaResult);
         }
 
 
         GridLayoutManager layoutManager = new GridLayoutManager(this, 1);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        StringAdapter postsAdapter = new StringAdapter(rnaResultList);
+        postsAdapter = new StringAdapter(rnaList, this);
         recyclerView.setAdapter(postsAdapter);
 
     }
@@ -73,14 +73,18 @@ public class MainActivity extends AppCompatActivity {
         return sb.toString();
     }
 
-    public static int count(final String string, final String substring){
+    public static int count(final String string, final RnaObject rnaObject){
         int count = 0;
         int idx = 0;
+        List<Integer> position = new ArrayList<>();
 
-        while ((idx = string.indexOf(substring, idx)) != -1){
+        while ((idx = string.indexOf(rnaObject.getRnaValue(), idx)) != -1){
+            position.add(idx);
             idx++;
             count++;
         }
+        rnaObject.setPosition(position);
+        rnaObject.setAmount(count);
 
         return count;
     }
@@ -119,4 +123,12 @@ public class MainActivity extends AppCompatActivity {
         return stringBuilder.toString();
     }
 
+    @Override
+    public void onListItemClick(int clickedItemIndex) {
+        RnaObject rnaObject = (RnaObject) postsAdapter.getDataAtPosition(clickedItemIndex);
+        String rnaObjectString = new Gson().toJson(rnaObject);
+        Intent intent = new Intent(this, PositionActivity.class);
+        intent.putExtra("rnaObject", rnaObjectString);
+        startActivity(intent);
+    }
 }

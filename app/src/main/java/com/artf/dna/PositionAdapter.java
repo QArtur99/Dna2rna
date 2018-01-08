@@ -13,14 +13,15 @@ import butterknife.BindColor;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class StringAdapter extends RecyclerView.Adapter<StringAdapter.MyViewHolder> {
+
+public class PositionAdapter extends RecyclerView.Adapter<PositionAdapter.MyViewHolder> {
 
     private static final String DOT = "\u2022";
 
-    private List<RnaObject> data;
+    private List<Integer> data;
     final private OnListItemClickListener mOnClickListener;
 
-    public StringAdapter(List<RnaObject> myDataset, OnListItemClickListener listener) {
+    public PositionAdapter(List<Integer> myDataset, OnListItemClickListener listener) {
         data = myDataset;
         mOnClickListener = listener;
     }
@@ -48,17 +49,7 @@ public class StringAdapter extends RecyclerView.Adapter<StringAdapter.MyViewHold
         return data.size();
     }
 
-    public void clearMovies() {
-        this.data.clear();
-        notifyDataSetChanged();
-    }
-
-    public void setMovies(List<RnaObject> data) {
-        this.data.addAll(data);
-        notifyDataSetChanged();
-    }
-
-    public List<RnaObject> getData() {
+    public List<Integer> getData() {
         return data;
     }
 
@@ -73,17 +64,14 @@ public class StringAdapter extends RecyclerView.Adapter<StringAdapter.MyViewHold
         @BindColor(R.color.bc) int color;
 
 
-
         public MyViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
-            description.setOnClickListener(this);
         }
 
         public void bind(int position) {
-            RnaObject rnaObject = (RnaObject) getDataAtPosition(position);
-            String result = rnaObject.getRnaValue() + " :" + String.valueOf(rnaObject.getAmount());
-            description.setText(result);
+            Integer rnaObject = (Integer) getDataAtPosition(position);
+            description.setText(String.valueOf(rnaObject));
             if(position % 2 != 0){
                 frame.setBackgroundColor(color);
             }
